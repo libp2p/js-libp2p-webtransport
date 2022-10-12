@@ -6,7 +6,6 @@ import { MemoryBlockstore } from 'blockstore-core/memory'
 import { Yamux } from '@chainsafe/libp2p-yamux'
 
 type Bitswap = ReturnType<typeof createBitswap>
-/* eslint-disable no-console */
 
 export async function setup (): Promise<{libp2p: Libp2p, bitswap: Bitswap}> {
   const store = new MemoryBlockstore()

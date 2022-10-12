@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import './style.css'
 import { multiaddr } from '@multiformats/multiaddr'
 import { setup as libp2pSetup } from './libp2p'
@@ -25,9 +23,7 @@ declare global {
   const { libp2p, bitswap } = await libp2pSetup()
   window.connectBtn.onclick = async () => {
     const ma = multiaddr(window.peerInput.value)
-    console.log('connecting')
     await libp2p.dial(ma)
-    console.log('connected')
   }
 
   libp2p.connectionManager.addEventListener('peer:connect', (_connection) => {
@@ -39,7 +35,6 @@ declare global {
 
   function updateConnList () {
     const addrs = libp2p.getConnections().map(c => c.remoteAddr.toString())
-    console.log('updating conns')
     if (addrs.length > 0) {
       window.downloadCidWrapperEl.hidden = false
       window.connlistWrapperEl.hidden = false
@@ -57,8 +52,6 @@ declare global {
   }
 
   window.fetchBtn.onclick = async () => {
-    console.log('Fetching cid', bitswap)
-
     const c = CID.parse(window.cidInput.value)
     window.statusEl.hidden = false
     const val = await bitswap.get(c)
@@ -67,8 +60,5 @@ declare global {
     window.downloadEl.href = window.URL.createObjectURL(new Blob([val], { type: 'bytes' }))
     window.downloadEl.hidden = false
   }
+// eslint-disable-next-line no-console
 })().catch(err => console.error(err))
-
-// setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
-
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
