@@ -40,16 +40,17 @@ $ npm i @libp2p/webtransport
 ## Libp2p Usage Example
 
 ```js
-import Libp2p from 'libp2p'
-import { WebTransport } from '@libp2p/webtransport'
-import { NOISE } from 'libp2p-noise'
+import { createLibp2pNode } from 'libp2p'
+import { webTransport } from '@libp2p/webtransport'
+import { noise } from 'libp2p-noise'
 
-const node = await Libp2p.create({
-  modules: {
-    connEncryption: [NOISE]
-      transports: [new WebTransport()],
-      connectionEncryption: [new Noise()]
-  },
+const node = await createLibp2pNode({
+  transports: [
+    webTransport()
+  ],
+  connectionEncryption: [
+    noise()
+  ]
 })
 ```
 
