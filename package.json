@@ -148,13 +148,12 @@
     "lint": "aegir lint",
     "dep-check": "aegir dep-check",
     "build": "aegir build",
-    "test": "aegir test",
-    "test:chrome": "aegir test -t browser -f ./dist/test/browser.js --cov",
+    "test": "aegir test -t browser",
+    "test:chrome": "aegir test -t browser --cov",
     "release": "aegir release"
   },
   "dependencies": {
     "@chainsafe/libp2p-noise": "^9.0.0",
-    "@libp2p/components": "^3.1.1",
     "@libp2p/interface-connection": "^3.0.2",
     "@libp2p/interface-peer-id": "^1.0.5",
     "@libp2p/interface-stream-muxer": "^3.0.0",
@@ -168,7 +167,7 @@
   },
   "devDependencies": {
     "aegir": "^37.5.6",
-    "libp2p": "next"
+    "libp2p": "^0.40.0"
   },
   "browser": {
     "./dist/src/listener.js": "./dist/src/listener.browser.js"
