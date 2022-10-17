@@ -18,7 +18,7 @@
     "blockstore-core": "^2.0.1",
     "ipfs-bitswap": "../../../../ipfs/js-ipfs-bitswap/",
     "js-libp2p-webtransport": "../../",
-    "libp2p": "../../../js-libp2p/"
+    "libp2p": "^0.40.0"
   },
   "devDependencies": {
     "typescript": "^4.6.4",
