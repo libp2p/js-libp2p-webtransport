@@ -47,11 +47,9 @@ play.describe('bundle ipfs with parceljs:', () => {
   const connectAddr = '#peerInput'
   const connList = '#connlistEl'
 
-  var server
-  var serverAddr
+  let server
+  let serverAddr
 
-  // const { serverAddr, server } = await spinUpGoLibp2p()
-  // console.log('Server addr:', serverAddr)
   play.beforeAll(async () => {
     const s = await spinUpGoLibp2p()
     server = s.server
