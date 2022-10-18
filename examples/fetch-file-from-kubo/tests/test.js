@@ -50,7 +50,8 @@ play.describe('bundle ipfs with parceljs:', () => {
   let server
   let serverAddr
 
-  play.beforeAll(async (_, testInfo) => {
+  // eslint-disable-next-line no-empty-pattern
+  play.beforeAll(async ({ }, testInfo) => {
     testInfo.setTimeout(5 * 60_000)
     const s = await spinUpGoLibp2p()
     server = s.server
