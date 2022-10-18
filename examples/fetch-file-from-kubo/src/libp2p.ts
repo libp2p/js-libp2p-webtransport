@@ -1,4 +1,4 @@
-import { webTransport } from '@libp2p-webtransport'
+import { webTransport } from '@libp2p/webtransport'
 import { Noise } from '@chainsafe/libp2p-noise'
 import { createLibp2p, Libp2p } from 'libp2p'
 import { createBitswap } from 'ipfs-bitswap'
