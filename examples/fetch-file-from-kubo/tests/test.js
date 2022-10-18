@@ -51,11 +51,13 @@ play.describe('bundle ipfs with parceljs:', () => {
   let serverAddr
 
   play.beforeAll(async () => {
+    test.setTimeout(5 * 60_000)
     const s = await spinUpGoLibp2p()
+    test.setTimeout(30_000)
     server = s.server
     serverAddr = s.serverAddr
     console.log('Server addr:', serverAddr)
-  })
+  }, {})
 
   play.afterAll(() => {
     server.kill('SIGINT')
@@ -65,7 +67,7 @@ play.describe('bundle ipfs with parceljs:', () => {
     await page.goto(`http://localhost:${servers[0].port}/`)
   })
 
-  play('should properly initialized a IPFS node and add/get a file', async ({ page }) => {
+  play('should connect to a go-libp2p node over webtransport', async ({ page }) => {
     await page.fill(connectAddr, serverAddr)
     await page.click(connectBtn)
 

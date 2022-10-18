@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@chainsafe/libp2p-noise": "^9.0.0",
-    "@libp2p/webtransport": "../../",
+    "@libp2p/webtransport": "1.0.2",
     "@multiformats/multiaddr": "^11.0.3",
     "blockstore-core": "^2.0.1",
     "ipfs-bitswap": "^13.0.0",
