@@ -10,7 +10,7 @@ const play = test.extend({
 })
 
 async function spinUpGoLibp2p() {
-  if (!existsSync('./go-libp2p-webtransport-server/main')) {
+  if (!existsSync('../../go-libp2p-webtransport-server/main')) {
     await new Promise((resolve, reject) => {
       exec('go build -o main main.go',
         { cwd: '../../go-libp2p-webtransport-server' },
