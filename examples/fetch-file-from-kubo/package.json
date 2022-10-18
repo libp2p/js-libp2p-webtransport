@@ -4,20 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
-  "overrides": {
-    "libp2p": "../../../js-libp2p"
-  },
   "dependencies": {
     "@chainsafe/libp2p-noise": "^9.0.0",
-    "@chainsafe/libp2p-yamux": "^2.0.0",
+    "@libp2p/webtransport": "../../",
     "@multiformats/multiaddr": "^11.0.3",
     "blockstore-core": "^2.0.1",
-    "ipfs-bitswap": "../../../../ipfs/js-ipfs-bitswap/",
-    "js-libp2p-webtransport": "../../",
+    "ipfs-bitswap": "^13.0.0",
     "libp2p": "^0.40.0"
   },
   "devDependencies": {
