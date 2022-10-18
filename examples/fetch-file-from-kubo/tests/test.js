@@ -50,10 +50,9 @@ play.describe('bundle ipfs with parceljs:', () => {
   let server
   let serverAddr
 
-  play.beforeAll(async () => {
-    test.setTimeout(5 * 60_000)
+  play.beforeAll(async (_, testInfo) => {
+    testInfo.setTimeout(5 * 60_000)
     const s = await spinUpGoLibp2p()
-    test.setTimeout(30_000)
     server = s.server
     serverAddr = s.serverAddr
     console.log('Server addr:', serverAddr)
