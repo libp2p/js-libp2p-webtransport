@@ -13,6 +13,7 @@ import { Uint8ArrayList } from 'uint8arraylist'
 
 const log = logger('libp2p:webtransport')
 
+const ERR_DOUBLE_SINK = 'ERR_DOUBLE_SINK'
 declare global {
   interface Window {
     WebTransport: any
@@ -24,6 +25,16 @@ const multibaseDecoder = Object.values(bases).map(b => b.decoder).reduce((d, b) 
 
 function decodeCerthashStr (s: string): MultihashDigest {
   return digest.decode(multibaseDecoder.decode(s))
+}
+
+// The same as 'err-code' package
+function errCode (err: Error, code: string): Error {
+  Object.defineProperty(err, 'code', {
+    value: code,
+    enumerable: true,
+    configurable: true
+  })
+  return err
 }
 
 // Duplex that does nothing. Needed to fulfill the interface
@@ -63,7 +74,13 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
   let writerClosed = false
   let readerClosed = false;
   (async function () {
-    await (writer.closed.then((ok: any) => ({ ok })).catch((err: any) => ({ err })))
+    const result: {ok: unknown} | {err: Error} = await (writer.closed.then((ok: unknown) => ({ ok })).catch((err: any) => ({ err })))
+    if ('err' in result) {
+      const msg = result.err.message
+      if (!(msg.includes('aborted by the remote server') || msg.includes('STOP_SENDING'))) {
+        log.error(`WebTransport writer closed unexpectedly: streamId=${streamId} err=${result.err.message}`)
+      }
+    }
     writerClosed = true
     if (writerClosed && readerClosed) {
       cleanupStreamFromActiveStreams()
@@ -73,7 +90,10 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
   });
 
   (async function () {
-    await (reader.closed.then((ok: any) => ({ ok })).catch((err: any) => ({ err })))
+    const result: {ok: unknown} | {err: Error} = await (reader.closed.then((ok: unknown) => ({ ok })).catch((err: any) => ({ err })))
+    if ('err' in result) {
+      log.error(`WebTransport reader closed unexpectedly: streamId=${streamId} err=${result.err.message}`)
+    }
     readerClosed = true
     if (writerClosed && readerClosed) {
       cleanupStreamFromActiveStreams()
@@ -82,6 +102,7 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
     log.error('WebTransport failed to cleanup closed stream')
   })
 
+  let sinkSunk = false
   const stream: Stream = {
     id: streamId,
     abort (_err: Error) {
@@ -148,14 +169,26 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
       }
     })(),
     sink: async function (source: Source<Uint8Array | Uint8ArrayList>) {
-      for await (const chunks of source) {
-        if (chunks.constructor === Uint8Array) {
-          await writer.write(chunks)
-        } else {
-          for (const buf of chunks) {
-            await writer.write(buf)
+      if (sinkSunk) {
+        throw errCode(new Error('sink already called on stream'), ERR_DOUBLE_SINK)
+      }
+      sinkSunk = true
+      try {
+        for await (const chunks of source) {
+          if (chunks.constructor === Uint8Array) {
+            await writer.write(chunks)
+          } else {
+            for (const buf of chunks) {
+              await writer.write(buf)
+            }
           }
         }
+      } finally {
+        // Defer stream.closeWrite a bit since there's a current bug where
+        // sometimes writes are not flushed properly. We may be able to remove
+        // this in the future, but we should run the tests many times to
+        // confirm.
+        setTimeout(stream.closeWrite, 0)
       }
     }
   }
