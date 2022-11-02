@@ -77,10 +77,8 @@ describe('libp2p-webtransport', () => {
 
     let expectedNextNumber = 0
     for await (const chunk of stream.source) {
-      for (const buf of chunk) {
-        for (const byte of buf) {
-          expect(byte).to.eql(expectedNextNumber++)
-        }
+      for (const byte of chunk.subarray()) {
+        expect(byte).to.equal(expectedNextNumber++)
       }
     }
     expect(expectedNextNumber).to.eql(16)
