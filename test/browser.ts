@@ -81,7 +81,7 @@ describe('libp2p-webtransport', () => {
         expect(byte).to.equal(expectedNextNumber++)
       }
     }
-    expect(expectedNextNumber).to.eql(16)
+    expect(expectedNextNumber).to.equal(16)
 
     // Close read, we've should have closed the write side during sink
     stream.closeRead()
