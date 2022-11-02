@@ -90,9 +90,9 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
   });
 
   (async function () {
-    const result: {ok: unknown} | {err: Error} = await (reader.closed.then((ok: unknown) => ({ ok })).catch((err: any) => ({ err })))
-    if ('err' in result) {
-      log.error(`WebTransport reader closed unexpectedly: streamId=${streamId} err=${result.err.message}`)
+    const err: Error | undefined = await reader.closed.catch(err => err)
+    if (err != null) {
+      log.error(`WebTransport reader closed unexpectedly: streamId=${streamId} err=${err.message}`)
     }
     readerClosed = true
     if (writerClosed && readerClosed) {
