@@ -12,8 +12,6 @@ import type { StreamMuxerFactory, StreamMuxerInit, StreamMuxer } from '@libp2p/i
 import { Uint8ArrayList } from 'uint8arraylist'
 
 const log = logger('libp2p:webtransport')
-
-const ERR_DOUBLE_SINK = 'ERR_DOUBLE_SINK'
 declare global {
   interface Window {
     WebTransport: any
@@ -25,16 +23,6 @@ const multibaseDecoder = Object.values(bases).map(b => b.decoder).reduce((d, b) 
 
 function decodeCerthashStr (s: string): MultihashDigest {
   return digest.decode(multibaseDecoder.decode(s))
-}
-
-// The same as 'err-code' package
-function errCode (err: Error, code: string): Error {
-  Object.defineProperty(err, 'code', {
-    value: code,
-    enumerable: true,
-    configurable: true
-  })
-  return err
 }
 
 // Duplex that does nothing. Needed to fulfill the interface
@@ -170,7 +158,7 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
     })(),
     sink: async function (source: Source<Uint8Array | Uint8ArrayList>) {
       if (sinkSunk) {
-        throw errCode(new Error('sink already called on stream'), ERR_DOUBLE_SINK)
+        throw new Error('sink already called on stream')
       }
       sinkSunk = true
       try {
