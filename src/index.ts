@@ -74,11 +74,11 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
   let writerClosed = false
   let readerClosed = false;
   (async function () {
-    const result: {ok: unknown} | {err: Error} = await (writer.closed.then((ok: unknown) => ({ ok })).catch((err: any) => ({ err })))
-    if ('err' in result) {
-      const msg = result.err.message
+    const err: Error | undefined = await writer.closed.catch(err => err)
+    if (err != null) {
+      const msg = err.message
       if (!(msg.includes('aborted by the remote server') || msg.includes('STOP_SENDING'))) {
-        log.error(`WebTransport writer closed unexpectedly: streamId=${streamId} err=${result.err.message}`)
+        log.error(`WebTransport writer closed unexpectedly: streamId=${streamId} err=${err.message}`)
       }
     }
     writerClosed = true
