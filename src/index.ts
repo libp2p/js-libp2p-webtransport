@@ -172,11 +172,7 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
           }
         }
       } finally {
-        // Defer stream.closeWrite a bit since there's a current bug where
-        // sometimes writes are not flushed properly. We may be able to remove
-        // this in the future, but we should run the tests many times to
-        // confirm.
-        setTimeout(stream.closeWrite, 0)
+        stream.closeWrite()
       }
     }
   }
