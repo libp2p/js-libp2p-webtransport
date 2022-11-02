@@ -175,7 +175,7 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
       sinkSunk = true
       try {
         for await (const chunks of source) {
-          if (chunks.constructor === Uint8Array) {
+          if (chunks instanceof Uint8Array) {
             await writer.write(chunks)
           } else {
             for (const buf of chunks) {
