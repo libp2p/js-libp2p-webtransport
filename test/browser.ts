@@ -42,7 +42,8 @@ describe('libp2p-webtransport', () => {
         (async () => {
           for await (const chunk of stream.source) {
             const v = chunk.subarray()
-            if (v.every((byte: number, i: number) => byte === data[i])) {
+            const byteMatches: boolean = v.every((byte: number, i: number) => byte === data[i])
+            if (byteMatches) {
               resolve()
             } else {
               reject(new Error('Wrong pong'))
