@@ -27,7 +27,39 @@ describe('libp2p-webtransport', () => {
 
     // Ping many times
     for (let index = 0; index < 100; index++) {
-      const res = await node.ping(ma)
+      const now = Date.now()
+
+      // Note we're re-implementing the ping protocol here because as of this
+      // writing, the standard js-libp2p ping implementation has some
+      // race-conditions when interacting with go-libp2p. We can work around it
+      // by waiting until we get a pong before closing the write stream.
+      const stream = await node.dialProtocol(ma, '/ipfs/ping/1.0.0')
+
+      const data = new Uint8Array(32)
+      globalThis.crypto.getRandomValues(data)
+
+      const pong = new Promise<void>((resolve, reject) => {
+        (async () => {
+          for await (const chunk of stream.source) {
+            const v = chunk.subarray()
+            if (v.every((byte: number, i: number) => byte === data[i])) {
+              resolve()
+            } else {
+              reject(new Error('Wrong pong'))
+            }
+          }
+        })().catch(reject)
+      })
+
+      let res = -1
+      await stream.sink((async function * () {
+        yield data
+        // Wait for the pong before we close the write side
+        await pong
+        res = Date.now() - now
+      })())
+
+      await stream.close()
 
       expect(res).to.be.greaterThan(-1)
     }
