@@ -30,9 +30,9 @@ describe('libp2p-webtransport', () => {
       const now = Date.now()
 
       // Note we're re-implementing the ping protocol here because as of this
-      // writing, the standard js-libp2p ping implementation has some
-      // race-conditions when interacting with go-libp2p. We can work around it
-      // by waiting until we get a pong before closing the write stream.
+      // writing, go-libp2p will reset the stream instead of close it. The next
+      // version of go-libp2p v0.24.0 will have this fix. When that's released
+      // we can use the builtin ping system
       const stream = await node.dialProtocol(ma, '/ipfs/ping/1.0.0')
 
       const data = new Uint8Array(32)
