@@ -1,51 +1,63 @@
-import { spawn, exec } from "child_process";
-import { existsSync } from "fs";
+import { pipe } from 'it-pipe'
+import { sha256 } from 'multiformats/hashes/sha2'
+import * as Digest from 'multiformats/hashes/digest'
+import { noise } from '@chainsafe/libp2p-noise'
+import { createLibp2p } from 'libp2p'
 
 /** @type {import('aegir/types').PartialOptions} */
 export default {
   test: {
     async before() {
-      if (!existsSync("./go-libp2p-webtransport-server/main")) {
-        await new Promise((resolve, reject) => {
-          exec('go build -o main main.go',
-            { cwd: "./go-libp2p-webtransport-server" },
-            (error, stdout, stderr) => {
-              if (error) {
-                reject(error)
-                console.error(`exec error: ${error}`);
-                return;
-              }
-              resolve()
-            });
-        })
-      }
+      const { generateWebTransportCertificate } = await import('./dist/test/certificate.js')
+      const { webTransport } = await import('./dist/src/index.js')
 
-      const server = spawn('./main', [], { cwd: "./go-libp2p-webtransport-server", killSignal: "SIGINT" });
-      server.stderr.on('data', (data) => {
-        console.log(`stderr: ${data}`, typeof data);
+      const certificate = await generateWebTransportCertificate([
+        { shortName: 'C', value: 'DE' },
+        { shortName: 'ST', value: 'Berlin' },
+        { shortName: 'L', value: 'Berlin' },
+        { shortName: 'O', value: 'webtransport Test Server' },
+        { shortName: 'CN', value: '127.0.0.1' }
+      ], {
+        // can be max 14 days according to the spec
+        days: 13
       })
-      const serverAddr = await (new Promise((resolve => {
-        server.stdout.on('data', (data) => {
-          console.log(`stdout: ${data}`, typeof data);
-          if (data.includes("addr=")) {
-            // Parse the addr out
-            resolve((data + "").match(/addr=([^\s]*)/)[1])
-          }
-        });
-      })))
+
+      const digest = Digest.create(sha256.code, certificate.hash)
+
+      const node = await createLibp2p({
+        addresses: {
+          listen: ['/ip4/0.0.0.0/udp/0/quic/webtransport']
+        },
+        transports: [webTransport({
+          certificates: [{
+            privateKey: certificate.private,
+            pem: certificate.cert,
+            hash: digest
+          }]
+        })],
+        connectionEncryption: [noise()]
+      })
+
+      await node.start()
+
+      await node.handle('echo', ({ stream }) => {
+        void pipe(stream, stream)
+      })
+
+      const multiaddrs = node.getMultiaddrs()
 
       return {
-        server,
+        node,
         env: {
-          serverAddr
+          serverAddr: multiaddrs[0].toString()
         }
       }
     },
-    async after(_, { server }) {
-      server.kill("SIGINT")
+    async after (_, before) {
+      await before.node.stop()
     }
   },
   build: {
-    bundlesizeMax: '18kB'
+    bundlesizeMax: '97kB'
   }
 }

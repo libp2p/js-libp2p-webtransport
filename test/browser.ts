@@ -3,9 +3,10 @@
 
 import { expect } from 'aegir/chai'
 import { multiaddr } from '@multiformats/multiaddr'
-import { Noise } from '@chainsafe/libp2p-noise'
-import { webTransport, isSubset } from '../src/index'
+import { noise } from '@chainsafe/libp2p-noise'
+import { webTransport } from '../src/index.js'
 import { createLibp2p } from 'libp2p'
+import { isSubset } from '../src/utils.js'
 
 declare global {
   interface Window {
@@ -20,7 +21,7 @@ describe('libp2p-webtransport', () => {
     const ma = multiaddr(maStr)
     const node = await createLibp2p({
       transports: [webTransport()],
-      connectionEncryption: [() => new Noise()]
+      connectionEncryption: [noise()]
     })
 
     await node.start()
@@ -79,7 +80,7 @@ describe('libp2p-webtransport', () => {
 
     const node = await createLibp2p({
       transports: [webTransport()],
-      connectionEncryption: [() => new Noise()]
+      connectionEncryption: [noise()]
     })
     await node.start()
 
@@ -89,14 +90,14 @@ describe('libp2p-webtransport', () => {
     await node.stop()
   })
 
-  it('Closes writes of streams after they have sunk a source', async () => {
-    // This is the behavor of stream muxers: (see mplex, yamux and compliance tests: https://github.com/libp2p/js-libp2p-interfaces/blob/master/packages/interface-stream-muxer-compliance-tests/src/close-test.ts)
+  it('closes writes of streams after they have sunk a source', async () => {
+    // This is the behaviour of stream muxers: (see mplex, yamux and compliance tests: https://github.com/libp2p/js-libp2p-interfaces/blob/master/packages/interface-stream-muxer-compliance-tests/src/close-test.ts)
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const maStr: string = process.env.serverAddr!
     const ma = multiaddr(maStr)
     const node = await createLibp2p({
       transports: [webTransport()],
-      connectionEncryption: [() => new Noise()]
+      connectionEncryption: [noise()]
     })
 
     async function * gen () {
