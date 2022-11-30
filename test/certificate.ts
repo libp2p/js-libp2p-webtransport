@@ -50,6 +50,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 // @ts-expect-error has no types, @types/node-forge is broken
 import forge from 'node-forge'
 import { webcrypto as crypto, X509Certificate } from 'crypto'
+import * as Digest from 'multiformats/hashes/digest'
+import { sha256 } from 'multiformats/hashes/sha2'
 
 const { pki, asn1, oids } = forge
 // taken from node-forge
@@ -324,6 +326,7 @@ function toPositiveHex (hexString: string) {
 
 export interface GenerateWebTransportCertificateOptions {
   days?: number
+  start?: Date
   extensions?: any[]
 }
 
@@ -367,7 +370,7 @@ interface PKICertificate {
 }
 
 // the next is an edit of the selfsigned function reduced to the function necessary for webtransport
-export async function generateWebTransportCertificate (attrs: Array<{ shortName: string, value: string }>, options: GenerateWebTransportCertificateOptions = {}): Promise<WebTransportCertificate> {
+async function generateWebTransportCertificate (attrs: Array<{ shortName: string, value: string }>, options: GenerateWebTransportCertificateOptions = {}): Promise<WebTransportCertificate> {
   const keyPair = await crypto.subtle.generateKey(
     {
       name: 'ECDSA',
@@ -382,7 +385,7 @@ export async function generateWebTransportCertificate (attrs: Array<{ shortName:
   cert.serialNumber = toPositiveHex(
     forge.util.bytesToHex(forge.random.getBytesSync(9))
   ) // the serial number can be decimal or hex (if preceded by 0x)
-  cert.validity.notBefore = new Date()
+  cert.validity.notBefore = options.start ?? new Date()
   cert.validity.notAfter = new Date()
   cert.validity.notAfter.setDate(
     cert.validity.notBefore.getDate() + (options.days ?? 14)
@@ -474,4 +477,21 @@ export async function generateWebTransportCertificate (attrs: Array<{ shortName:
   }
 
   return pem
+}
+
+export function generateWebTransportCertificates (attrs: Array<{ shortName: string, value: string }>, options: GenerateWebTransportCertificateOptions[] = []) {
+  return Promise.all(
+    options.map(async options => {
+      const certificate = await generateWebTransportCertificate(attrs, options)
+
+      const digest = Digest.create(sha256.code, certificate.hash)
+
+      return {
+        privateKey: certificate.private,
+        pem: certificate.cert,
+        hash: digest,
+        secret: 'super-secret-shhhhhh'
+      }
+    })
+  )
 }

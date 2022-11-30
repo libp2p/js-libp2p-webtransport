@@ -68,34 +68,47 @@ class DefaultWebTransportServer extends EventEmitter implements WebTransportServ
   }
 
   async _processIncomingSessions () {
-    const sessionStream = await this.server.sessionStream('/.well-known/libp2p-webtransport?type=noise')
-    const sessionReader = sessionStream.getReader()
+    // FIXME: incompatible webtransport implementations
+    const paths = [
+      // Chrome
+      '/.well-known/libp2p-webtransport?type=noise',
 
-    while (true) {
-      const { done, value: session } = await sessionReader.read()
+      // @fails-components/webtransport
+      '/.well-known/libp2p-webtransport'
+    ]
 
-      if (done) {
-        log('session reader finished')
-        break
-      }
+    await Promise.all(
+      paths.map(async path => {
+        const sessionStream = await this.server.sessionStream(path)
+        const sessionReader = sessionStream.getReader()
 
-      void Promise.resolve()
-        .then(async () => {
-          const timeout = pTimeout(session.ready, {
-            milliseconds: this.sessionTimeout
-          })
+        while (true) {
+          const { done, value: session } = await sessionReader.read()
 
-          try {
-            await timeout
-
-            this.emit('session', session)
-          } catch (err) {
-            log.error('error waiting for session to become ready', err)
-          } finally {
-            timeout.clear()
+          if (done) {
+            log('session reader finished')
+            break
           }
-        })
-    }
+
+          void Promise.resolve()
+            .then(async () => {
+              const timeout = pTimeout(session.ready, {
+                milliseconds: this.sessionTimeout
+              })
+
+              try {
+                await timeout
+
+                this.emit('session', session)
+              } catch (err) {
+                log.error('error waiting for session to become ready', err)
+              } finally {
+                timeout.clear()
+              }
+            })
+        }
+      })
+    )
   }
 }
 

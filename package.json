@@ -151,6 +151,7 @@
     "test": "aegir test -t node -t browser",
     "test:node": "aegir test -t node --cov",
     "test:chrome": "aegir test -t browser --cov",
+    "test:chrome-webworker": "aegir test -t webworker",
     "release": "aegir release"
   },
   "dependencies": {
@@ -176,6 +177,7 @@
     "@libp2p/interface-transport-compliance-tests": "^3.0.2",
     "@libp2p/peer-id-factory": "^1.0.19",
     "aegir": "^37.5.6",
+    "iso-random-stream": "^2.0.2",
     "it-pipe": "^2.0.4",
     "libp2p": "next",
     "sinon": "^15.0.0"

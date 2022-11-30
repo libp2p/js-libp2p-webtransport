@@ -7,15 +7,10 @@ import { noise } from '@chainsafe/libp2p-noise'
 import { webTransport } from '../src/index.js'
 import { createLibp2p } from 'libp2p'
 import { isSubset } from '../src/utils.js'
-
-declare global {
-  interface Window {
-    WebTransport: any
-  }
-}
+import { randomBytes } from 'iso-random-stream'
 
 describe('libp2p-webtransport', () => {
-  it('webtransport connects to go-libp2p', async () => {
+  it('webtransport connects', async () => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const maStr: string = process.env.serverAddr!
     const ma = multiaddr(maStr)
@@ -36,8 +31,7 @@ describe('libp2p-webtransport', () => {
       // we can use the builtin ping system
       const stream = await node.dialProtocol(ma, '/ipfs/ping/1.0.0')
 
-      const data = new Uint8Array(32)
-      globalThis.crypto.getRandomValues(data)
+      const data = randomBytes(32)
 
       const pong = new Promise<void>((resolve, reject) => {
         (async () => {
@@ -85,7 +79,13 @@ describe('libp2p-webtransport', () => {
     await node.start()
 
     const err = await expect(node.dial(ma)).to.eventually.be.rejected()
-    expect(err.errors[0].toString()).to.contain('WebTransportError: Opening handshake failed.')
+
+    expect(err.errors[0].toString()).to.satisfy((message: string) => {
+      // Chrome
+      return message.includes('WebTransportError: Opening handshake failed.')
+      // @fails-components/webtransport
+        || message.includes('No supported verification method included')
+    })
 
     await node.stop()
   })

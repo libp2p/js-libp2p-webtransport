@@ -3,10 +3,8 @@ import tests from '@libp2p/interface-transport-compliance-tests'
 import { multiaddr } from '@multiformats/multiaddr'
 import { createEd25519PeerId } from '@libp2p/peer-id-factory'
 import { webTransport } from '../src/index.js'
-import { generateWebTransportCertificate } from './certificate.js'
+import { generateWebTransportCertificates } from './certificate.js'
 import { base64url } from 'multiformats/bases/base64'
-import { sha256 } from 'multiformats/hashes/sha2'
-import * as Digest from 'multiformats/hashes/digest'
 
 describe('interface-transport compliance', () => {
   tests({
@@ -15,27 +13,21 @@ describe('interface-transport compliance', () => {
         peerId: await createEd25519PeerId()
       }
 
-      const certificate = await generateWebTransportCertificate([
+      const certificates = await generateWebTransportCertificates([
         { shortName: 'C', value: 'DE' },
         { shortName: 'ST', value: 'Berlin' },
         { shortName: 'L', value: 'Berlin' },
         { shortName: 'O', value: 'webtransport Test Server' },
         { shortName: 'CN', value: '127.0.0.1' }
-      ], {
+      ], [{
         // can be max 14 days according to the spec
         days: 13
-      })
+      }])
 
-      const digest = Digest.create(sha256.code, certificate.hash)
-      const certhash = base64url.encode(digest.bytes)
+      const certhash = base64url.encode(certificates[0].hash.bytes)
 
       const transport = webTransport({
-        certificates: [{
-          privateKey: certificate.private,
-          pem: certificate.cert,
-          hash: digest,
-          secret: 'super-secret-shhhhhh'
-        }]
+        certificates: certificates
       })(components)
       const addrs = [
         multiaddr(`/ip4/127.0.0.1/udp/9091/quic/webtransport/certhash/${certhash}/p2p/${components.peerId.toString()}`),

@@ -144,41 +144,42 @@ class WebTransportTransport implements Transport {
     wt.closed.catch((error: Error) => {
       log.error('WebTransport transport closed due to:', error)
     })
+
     await wt.ready
 
-    if (!await this.authenticateWebTransport(wt, localPeer, certhashes, remotePeer)) {
-      throw new Error('Failed to authenticate webtransport')
-    }
-
-    const maConn: MultiaddrConnection = {
-      close: async (err?: Error) => {
-        if (err != null) {
-          log('Closing webtransport with err:', err)
-        }
-        wt.close()
-      },
-      remoteAddr: ma,
-      timeline: {
-        open: Date.now()
-      },
-      // This connection is never used directly since webtransport supports native streams.
-      ...inertDuplex()
-    }
-
-    wt.closed.catch((err: Error) => {
-      log.error('WebTransport connection closed with err:', err)
-    })
-      .finally(() => {
-      // This is how we specify the connection is closed and shouldn't be used.
-        maConn.timeline.close = Date.now()
-      })
-
-    if (options.signal?.aborted === true) {
-      wt.close()
-      throw new AbortError()
-    }
-
     try {
+      if (!await this.authenticateWebTransport(wt, localPeer, certhashes, remotePeer)) {
+        throw new Error('Failed to authenticate webtransport')
+      }
+
+      const maConn: MultiaddrConnection = {
+        close: async (err?: Error) => {
+          if (err != null) {
+            log('Closing webtransport with err:', err)
+          }
+          wt.close()
+        },
+        remoteAddr: ma,
+        timeline: {
+          open: Date.now()
+        },
+        // This connection is never used directly since webtransport supports native streams.
+        ...inertDuplex()
+      }
+
+      wt.closed.catch((err: Error) => {
+        log.error('WebTransport connection closed with err:', err)
+      })
+        .finally(() => {
+        // This is how we specify the connection is closed and shouldn't be used.
+          maConn.timeline.close = Date.now()
+        })
+
+      if (options.signal?.aborted === true) {
+        wt.close()
+        throw new AbortError()
+      }
+
       return await options.upgrader.upgradeOutbound(maConn, {
         skipEncryption: true,
         muxerFactory: webtransportMuxer(wt, wt.incomingBidirectionalStreams.getReader(), this.config),
