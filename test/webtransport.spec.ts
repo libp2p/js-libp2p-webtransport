@@ -82,9 +82,9 @@ describe('@libp2p/webtransport', () => {
 
     expect(err.errors[0].toString()).to.satisfy((message: string) => {
       // Chrome
-      return message.includes('WebTransportError: Opening handshake failed.')
+      return message.includes('WebTransportError: Opening handshake failed.') ||
       // @fails-components/webtransport
-        || message.includes('No supported verification method included')
+        message.includes('No supported verification method included')
     })
 
     await node.stop()

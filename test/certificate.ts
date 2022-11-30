@@ -479,8 +479,8 @@ async function generateWebTransportCertificate (attrs: Array<{ shortName: string
   return pem
 }
 
-export function generateWebTransportCertificates (attrs: Array<{ shortName: string, value: string }>, options: GenerateWebTransportCertificateOptions[] = []) {
-  return Promise.all(
+export async function generateWebTransportCertificates (attrs: Array<{ shortName: string, value: string }>, options: GenerateWebTransportCertificateOptions[] = []) {
+  return await Promise.all(
     options.map(async options => {
       const certificate = await generateWebTransportCertificate(attrs, options)
 
