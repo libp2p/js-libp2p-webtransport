@@ -30,7 +30,7 @@ $ npm i @libp2p/webtransport
 
 ## Description
 
-`libp2p-webtransport` is the WebTransport transport implementation compatible with libp2p.
+`@libp2p/webtransport` is the WebTransport transport implementation compatible with libp2p.
 
 ## Usage
 

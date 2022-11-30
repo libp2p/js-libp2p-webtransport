@@ -3,24 +3,20 @@
 
 import { expect } from 'aegir/chai'
 import { multiaddr } from '@multiformats/multiaddr'
-import { Noise } from '@chainsafe/libp2p-noise'
-import { webTransport, isSubset } from '../src/index'
+import { noise } from '@chainsafe/libp2p-noise'
+import { webTransport } from '../src/index.js'
 import { createLibp2p } from 'libp2p'
+import { isSubset } from '../src/utils.js'
+import { randomBytes } from 'iso-random-stream'
 
-declare global {
-  interface Window {
-    WebTransport: any
-  }
-}
-
-describe('libp2p-webtransport', () => {
-  it('webtransport connects to go-libp2p', async () => {
+describe('@libp2p/webtransport', () => {
+  it('webtransport connects', async () => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const maStr: string = process.env.serverAddr!
     const ma = multiaddr(maStr)
     const node = await createLibp2p({
       transports: [webTransport()],
-      connectionEncryption: [() => new Noise()]
+      connectionEncryption: [noise()]
     })
 
     await node.start()
@@ -35,8 +31,7 @@ describe('libp2p-webtransport', () => {
       // we can use the builtin ping system
       const stream = await node.dialProtocol(ma, '/ipfs/ping/1.0.0')
 
-      const data = new Uint8Array(32)
-      globalThis.crypto.getRandomValues(data)
+      const data = randomBytes(32)
 
       const pong = new Promise<void>((resolve, reject) => {
         (async () => {
@@ -79,24 +74,30 @@ describe('libp2p-webtransport', () => {
 
     const node = await createLibp2p({
       transports: [webTransport()],
-      connectionEncryption: [() => new Noise()]
+      connectionEncryption: [noise()]
     })
     await node.start()
 
     const err = await expect(node.dial(ma)).to.eventually.be.rejected()
-    expect(err.errors[0].toString()).to.contain('WebTransportError: Opening handshake failed.')
+
+    expect(err.errors[0].toString()).to.satisfy((message: string) => {
+      // Chrome
+      return message.includes('WebTransportError: Opening handshake failed.') ||
+      // @fails-components/webtransport
+        message.includes('No supported verification method included')
+    })
 
     await node.stop()
   })
 
-  it('Closes writes of streams after they have sunk a source', async () => {
-    // This is the behavor of stream muxers: (see mplex, yamux and compliance tests: https://github.com/libp2p/js-libp2p-interfaces/blob/master/packages/interface-stream-muxer-compliance-tests/src/close-test.ts)
+  it('closes writes of streams after they have sunk a source', async () => {
+    // This is the behaviour of stream muxers: (see mplex, yamux and compliance tests: https://github.com/libp2p/js-libp2p-interfaces/blob/master/packages/interface-stream-muxer-compliance-tests/src/close-test.ts)
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const maStr: string = process.env.serverAddr!
     const ma = multiaddr(maStr)
     const node = await createLibp2p({
       transports: [webTransport()],
-      connectionEncryption: [() => new Noise()]
+      connectionEncryption: [noise()]
     })
 
     async function * gen () {
