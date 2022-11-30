@@ -9,7 +9,7 @@ import { createLibp2p } from 'libp2p'
 import { isSubset } from '../src/utils.js'
 import { randomBytes } from 'iso-random-stream'
 
-describe('libp2p-webtransport', () => {
+describe('@libp2p/webtransport', () => {
   it('webtransport connects', async () => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const maStr: string = process.env.serverAddr!

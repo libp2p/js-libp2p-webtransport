@@ -5,7 +5,7 @@ import { createLibp2p } from 'libp2p'
 /** @type {import('aegir/types').PartialOptions} */
 export default {
   test: {
-    async before() {
+    async before () {
       const { generateWebTransportCertificates } = await import('./dist/test/certificate.js')
       const { webTransport } = await import('./dist/src/index.js')
 
