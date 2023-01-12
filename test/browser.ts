@@ -53,7 +53,7 @@ describe('libp2p-webtransport', () => {
       })
 
       let res = -1
-      await stream.sink((async function* () {
+      await stream.sink((async function * () {
         yield data
         // Wait for the pong before we close the write side
         await pong
@@ -99,7 +99,7 @@ describe('libp2p-webtransport', () => {
       connectionEncryption: [noise()]
     })
 
-    async function* gen() {
+    async function * gen () {
       yield new Uint8Array([0])
       yield new Uint8Array([1, 2, 3, 4])
       yield new Uint8Array([5, 6, 7])
