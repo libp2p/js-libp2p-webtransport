@@ -48,14 +48,14 @@
 <a href="#install" id="install" style="color: inherit; text-decoration: none;">
   <h2>Install</h2>
 </a>
-<pre><code class="language-console">$ npm i @libp2p/webtransport
+<pre><code class="language-console"><span class="hl-0">$ </span><span class="hl-1">npm</span><span class="hl-0"> </span><span class="hl-1">i</span><span class="hl-0"> </span><span class="hl-1">@libp2p/webtransport</span>
 </code></pre>
 
 <a href="#browser-ltscriptgt-tag" id="browser-ltscriptgt-tag" style="color: inherit; text-decoration: none;">
   <h3>Browser <code>&lt;script&gt;</code> tag</h3>
 </a>
 <p>Loading this module through a script tag will make it&#39;s exports available as <code>Libp2pWebtransport</code> in the global namespace.</p>
-<pre><code class="language-html"><span class="hl-0">&lt;</span><span class="hl-1">script</span><span class="hl-2"> </span><span class="hl-3">src</span><span class="hl-2">=</span><span class="hl-4">&quot;https://unpkg.com/@libp2p/webtransport/dist/index.min.js&quot;</span><span class="hl-0">&gt;&lt;/</span><span class="hl-1">script</span><span class="hl-0">&gt;</span>
+<pre><code class="language-html"><span class="hl-2">&lt;</span><span class="hl-3">script</span><span class="hl-4"> </span><span class="hl-5">src</span><span class="hl-4">=</span><span class="hl-6">&quot;https://unpkg.com/@libp2p/webtransport/dist/index.min.js&quot;</span><span class="hl-2">&gt;&lt;/</span><span class="hl-3">script</span><span class="hl-2">&gt;</span>
 </code></pre>
 <p><a href="https://github.com/libp2p/interface-transport"><img src="https://raw.githubusercontent.com/libp2p/interface-transport/master/img/badge.png" alt=""></a>
 <a href="https://github.com/libp2p/interface-connection"><img src="https://raw.githubusercontent.com/libp2p/interface-connection/master/img/badge.png" alt=""></a></p>
@@ -68,13 +68,13 @@
 <a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
   <h2>Usage</h2>
 </a>
-<pre><code class="language-sh"><span class="hl-5">&gt; npm i @libp2p/webtransport</span>
+<pre><code class="language-sh"><span class="hl-0">&gt; npm i @libp2p/webtransport</span>
 </code></pre>
 
 <a href="#libp2p-usage-example" id="libp2p-usage-example" style="color: inherit; text-decoration: none;">
   <h2>Libp2p Usage Example</h2>
 </a>
-<pre><code class="language-js"><span class="hl-6">import</span><span class="hl-5"> { </span><span class="hl-7">createLibp2pNode</span><span class="hl-5"> } </span><span class="hl-6">from</span><span class="hl-5"> </span><span class="hl-8">&#39;libp2p&#39;</span><br/><span class="hl-6">import</span><span class="hl-5"> { </span><span class="hl-7">webTransport</span><span class="hl-5"> } </span><span class="hl-6">from</span><span class="hl-5"> </span><span class="hl-8">&#39;@libp2p/webtransport&#39;</span><br/><span class="hl-6">import</span><span class="hl-5"> { </span><span class="hl-7">noise</span><span class="hl-5"> } </span><span class="hl-6">from</span><span class="hl-5"> </span><span class="hl-8">&#39;libp2p-noise&#39;</span><br/><br/><span class="hl-9">const</span><span class="hl-5"> </span><span class="hl-10">node</span><span class="hl-5"> = </span><span class="hl-6">await</span><span class="hl-5"> </span><span class="hl-11">createLibp2pNode</span><span class="hl-5">({</span><br/><span class="hl-5">  </span><span class="hl-7">transports:</span><span class="hl-5"> [</span><br/><span class="hl-5">    </span><span class="hl-11">webTransport</span><span class="hl-5">()</span><br/><span class="hl-5">  ],</span><br/><span class="hl-5">  </span><span class="hl-7">connectionEncryption:</span><span class="hl-5"> [</span><br/><span class="hl-5">    </span><span class="hl-11">noise</span><span class="hl-5">()</span><br/><span class="hl-5">  ]</span><br/><span class="hl-5">})</span>
+<pre><code class="language-js"><span class="hl-7">import</span><span class="hl-0"> { </span><span class="hl-8">createLibp2pNode</span><span class="hl-0"> } </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-1">&#39;libp2p&#39;</span><br/><span class="hl-7">import</span><span class="hl-0"> { </span><span class="hl-8">webTransport</span><span class="hl-0"> } </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-1">&#39;@libp2p/webtransport&#39;</span><br/><span class="hl-7">import</span><span class="hl-0"> { </span><span class="hl-8">noise</span><span class="hl-0"> } </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-1">&#39;libp2p-noise&#39;</span><br/><br/><span class="hl-9">const</span><span class="hl-0"> </span><span class="hl-10">node</span><span class="hl-0"> = </span><span class="hl-7">await</span><span class="hl-0"> </span><span class="hl-11">createLibp2pNode</span><span class="hl-0">({</span><br/><span class="hl-0">  </span><span class="hl-8">transports:</span><span class="hl-0"> [</span><br/><span class="hl-0">    </span><span class="hl-11">webTransport</span><span class="hl-0">()</span><br/><span class="hl-0">  ],</span><br/><span class="hl-0">  </span><span class="hl-8">connectionEncryption:</span><span class="hl-0"> [</span><br/><span class="hl-0">    </span><span class="hl-11">noise</span><span class="hl-0">()</span><br/><span class="hl-0">  ]</span><br/><span class="hl-0">})</span>
 </code></pre>
 <p>For more information see <a href="https://github.com/libp2p/js-libp2p/blob/master/doc/CONFIGURATION.md#customizing-transports">libp2p/js-libp2p/doc/CONFIGURATION.md#customizing-transports</a>.</p>
 
