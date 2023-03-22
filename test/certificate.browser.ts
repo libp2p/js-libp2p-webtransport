@@ -1,4 +1,4 @@
 
-export async function generateWebTransportCertificates () {
+export async function generateWebTransportCertificates (): Promise<any> {
   throw new Error('Not implemented')
 }

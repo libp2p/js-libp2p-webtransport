@@ -22,12 +22,12 @@ const CODE_P2P = 421
 
 const networks = os.networkInterfaces()
 
-function isAnyAddr (ip: string) {
+function isAnyAddr (ip: string): boolean {
   return ['0.0.0.0', '::'].includes(ip)
 }
 
-function getNetworkAddrs (family: string) {
-  const addresses = []
+function getNetworkAddrs (family: string): string[] {
+  const addresses: string[] = []
 
   for (const [, netAddrs] of Object.entries(networks)) {
     if (netAddrs != null) {
@@ -44,19 +44,19 @@ function getNetworkAddrs (family: string) {
 
 const ProtoFamily = { ip4: 'IPv4', ip6: 'IPv6' }
 
-function getMultiaddrs (proto: 'ip4' | 'ip6', ip: string, port: number, certificates: WebTransportCertificate[]) {
+function getMultiaddrs (proto: 'ip4' | 'ip6', ip: string, port: number, certificates: WebTransportCertificate[]): Multiaddr[] {
   const certhashes = certificates.map(cert => {
     return `/certhash/${base64url.encode(cert.hash.bytes)}`
   }).join('')
 
-  const toMa = (ip: string) => multiaddr(`/${proto}/${ip}/udp/${port}/quic/webtransport${certhashes}`)
+  const toMa = (ip: string): Multiaddr => multiaddr(`/${proto}/${ip}/udp/${port}/quic/webtransport${certhashes}`)
   return (isAnyAddr(ip) ? getNetworkAddrs(ProtoFamily[proto]) : [ip]).map(toMa)
 }
 
 /**
  * Attempts to close the given maConn. If a failure occurs, it will be logged
  */
-async function attemptClose (conn: Connection) {
+async function attemptClose (conn: Connection): Promise<void> {
   try {
     await conn.close()
   } catch (err) {
@@ -71,7 +71,7 @@ interface WebTransportListenerInit extends CreateListenerOptions {
   certificates: WebTransportCertificate[]
 }
 
-type Status = {started: false} | {started: true, listeningAddr: Multiaddr, peerId: string | null }
+type Status = { started: false } | { started: true, listeningAddr: Multiaddr, peerId: string | null }
 
 class WebTransportListener extends EventEmitter<ListenerEvents> implements Listener {
   private server?: WebTransportServer
@@ -94,7 +94,7 @@ class WebTransportListener extends EventEmitter<ListenerEvents> implements Liste
     this.connections = []
   }
 
-  async onSession (session: WebTransportSession) {
+  async onSession (session: WebTransportSession): Promise<void> {
     const bidiReader = session.incomingBidirectionalStreams.getReader()
 
     // read one stream to do authentication
@@ -183,7 +183,7 @@ class WebTransportListener extends EventEmitter<ListenerEvents> implements Liste
     }
   }
 
-  getAddrs () {
+  getAddrs (): Multiaddr[] {
     if (!this.status.started || this.server == null) {
       return []
     }
@@ -247,7 +247,7 @@ class WebTransportListener extends EventEmitter<ListenerEvents> implements Liste
       this.dispatchEvent(new CustomEvent('close'))
     })
 
-    return await new Promise<void>((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       server.listen()
 
       server.on('listening', () => {
@@ -256,14 +256,14 @@ class WebTransportListener extends EventEmitter<ListenerEvents> implements Liste
     })
   }
 
-  async close () {
+  async close (): Promise<void> {
     if (this.server == null) {
       return
     }
 
     log('closing connections')
     await Promise.all(
-      this.connections.map(async conn => await attemptClose(conn))
+      this.connections.map(async conn => { await attemptClose(conn) })
     )
 
     log('stopping server')

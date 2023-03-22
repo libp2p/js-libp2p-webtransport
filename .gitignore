@@ -1,9 +1,10 @@
 node_modules
-package-lock.json
-coverage
-.coverage
-.nyc_output
-docs
+build
 dist
-
+.docs
+.coverage
+node_modules
+package-lock.json
+yarn.lock
 go-libp2p-webtransport-server/main
+.vscode

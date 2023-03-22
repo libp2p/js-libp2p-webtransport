@@ -2,14 +2,14 @@ import sinon from 'sinon'
 import tests from '@libp2p/interface-transport-compliance-tests'
 import { multiaddr } from '@multiformats/multiaddr'
 import { createEd25519PeerId } from '@libp2p/peer-id-factory'
-import { webTransport } from '../src/index.js'
+import { webTransport, WebTransportComponents } from '../src/index.js'
 import { generateWebTransportCertificates } from './certificate.js'
 import { base64url } from 'multiformats/bases/base64'
 
 describe('interface-transport compliance', () => {
   tests({
     async setup () {
-      const components = {
+      const components: WebTransportComponents = {
         peerId: await createEd25519PeerId()
       }
 
@@ -27,7 +27,7 @@ describe('interface-transport compliance', () => {
       const certhash = base64url.encode(certificates[0].hash.bytes)
 
       const transport = webTransport({
-        certificates: certificates
+        certificates
       })(components)
       const addrs = [
         multiaddr(`/ip4/127.0.0.1/udp/9091/quic/webtransport/certhash/${certhash}/p2p/${components.peerId.toString()}`),
@@ -45,7 +45,7 @@ describe('interface-transport compliance', () => {
           // @ts-expect-error method is not part of transport interface
           sinon.replace(transport, 'authenticateWebTransport', async (wt: WebTransport, localPeer: PeerId, remotePeer: PeerId, certhashes: Array<MultihashDigest<number>>) => {
             await new Promise<void>((resolve) => {
-              setTimeout(() => resolve(), delayMs)
+              setTimeout(() => { resolve() }, delayMs)
             })
 
             return authenticateWebTransport(wt, localPeer, remotePeer, certhashes)

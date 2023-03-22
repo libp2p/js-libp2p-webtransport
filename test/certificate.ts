@@ -52,6 +52,7 @@ import forge from 'node-forge'
 import { webcrypto as crypto, X509Certificate } from 'crypto'
 import * as Digest from 'multiformats/hashes/digest'
 import { sha256 } from 'multiformats/hashes/sha2'
+import type { WebTransportCertificate } from '../src/index.js'
 
 const { pki, asn1, oids } = forge
 // taken from node-forge
@@ -62,7 +63,7 @@ const { pki, asn1, oids } = forge
  *
  * @returns the ASN.1 RDNSequence.
  */
-function _dnToAsn1 (obj: any) {
+function _dnToAsn1 (obj: any): any {
   // create an empty RDNSequence
   const rval = asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [])
 
@@ -118,7 +119,7 @@ function _dnToAsn1 (obj: any) {
 
 const jan11950 = new Date('1950-01-01T00:00:00Z')
 const jan12050 = new Date('2050-01-01T00:00:00Z')
-function _dateToAsn1 (date: Date) {
+function _dateToAsn1 (date: Date): any {
   if (date >= jan11950 && date < jan12050) {
     return asn1.create(
       asn1.Class.UNIVERSAL,
@@ -144,7 +145,7 @@ function _dateToAsn1 (date: Date) {
  * @param params - The signature parametrs object
  * @returns ASN.1 object representing signature parameters
  */
-function _signatureParametersToAsn1 (oid: string, params: any) {
+function _signatureParametersToAsn1 (oid: string, params: any): any {
   const parts = []
   switch (oid) {
     case oids['RSASSA-PSS']:
@@ -202,7 +203,6 @@ function _signatureParametersToAsn1 (oid: string, params: any) {
       }
 
       return asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, parts)
-
     default:
       return asn1.create(asn1.Class.UNIVERSAL, asn1.Type.NULL, false, '')
   }
@@ -216,7 +216,7 @@ function _signatureParametersToAsn1 (oid: string, params: any) {
  *
  * @returns the asn1 TBSCertificate.
  */
-function getTBSCertificate (cert: PKICertificate) {
+function getTBSCertificate (cert: PKICertificate): any {
   // TBSCertificate
   const notBefore = _dateToAsn1(cert.validity.notBefore)
   const notAfter = _dateToAsn1(cert.validity.notAfter)
@@ -314,7 +314,7 @@ function getTBSCertificate (cert: PKICertificate) {
 // because serial numbers use ones' complement notation
 // this RFC in section 4.1.2.2 requires serial numbers to be positive
 // http://www.ietf.org/rfc/rfc5280.txt
-function toPositiveHex (hexString: string) {
+function toPositiveHex (hexString: string): string {
   let mostSiginficativeHexAsInt = parseInt(hexString[0], 16)
   if (mostSiginficativeHexAsInt < 8) {
     return hexString
@@ -330,7 +330,7 @@ export interface GenerateWebTransportCertificateOptions {
   extensions?: any[]
 }
 
-export interface WebTransportCertificate {
+export interface ForgeWebTransportCertificate {
   private: string
   public: string
   privateRaw: Uint8Array
@@ -370,7 +370,7 @@ interface PKICertificate {
 }
 
 // the next is an edit of the selfsigned function reduced to the function necessary for webtransport
-async function generateWebTransportCertificate (attrs: Array<{ shortName: string, value: string }>, options: GenerateWebTransportCertificateOptions = {}): Promise<WebTransportCertificate> {
+async function generateWebTransportCertificate (attrs: Array<{ shortName: string, value: string }>, options: GenerateWebTransportCertificateOptions = {}): Promise<ForgeWebTransportCertificate> {
   const keyPair = await crypto.subtle.generateKey(
     {
       name: 'ECDSA',
@@ -447,8 +447,6 @@ async function generateWebTransportCertificate (attrs: Array<{ shortName: string
     keyPair.privateKey,
     encoded
   )
-  cert.md = await cert.md
-  cert.signature = await cert.signature
 
   const pemcert = pki.certificateToPem(cert)
 
@@ -479,7 +477,7 @@ async function generateWebTransportCertificate (attrs: Array<{ shortName: string
   return pem
 }
 
-export async function generateWebTransportCertificates (attrs: Array<{ shortName: string, value: string }>, options: GenerateWebTransportCertificateOptions[] = []) {
+export async function generateWebTransportCertificates (attrs: Array<{ shortName: string, value: string }>, options: GenerateWebTransportCertificateOptions[] = []): Promise<WebTransportCertificate[]> {
   return await Promise.all(
     options.map(async options => {
       const certificate = await generateWebTransportCertificate(attrs, options)

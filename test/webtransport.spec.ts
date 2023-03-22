@@ -55,13 +55,13 @@ describe('@libp2p/webtransport', () => {
         res = Date.now() - now
       })())
 
-      await stream.close()
+      stream.close()
 
       expect(res).to.be.greaterThan(-1)
     }
 
     await node.stop()
-    const conns = node.connectionManager.getConnections()
+    const conns = node.getConnections()
     expect(conns.length).to.equal(0)
   })
 
@@ -80,12 +80,7 @@ describe('@libp2p/webtransport', () => {
 
     const err = await expect(node.dial(ma)).to.eventually.be.rejected()
 
-    expect(err.errors[0].toString()).to.satisfy((message: string) => {
-      // Chrome
-      return message.includes('WebTransportError: Opening handshake failed.') ||
-      // @fails-components/webtransport
-        message.includes('No supported verification method included')
-    })
+    expect(err.toString()).to.include('Expected multiaddr to contain certhashes')
 
     await node.stop()
   })
@@ -100,7 +95,7 @@ describe('@libp2p/webtransport', () => {
       connectionEncryption: [noise()]
     })
 
-    async function * gen () {
+    async function * gen (): AsyncGenerator<Uint8Array, void, unknown> {
       yield new Uint8Array([0])
       yield new Uint8Array([1, 2, 3, 4])
       yield new Uint8Array([5, 6, 7])

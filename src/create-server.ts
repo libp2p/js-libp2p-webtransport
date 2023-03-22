@@ -31,7 +31,7 @@ class DefaultWebTransportServer extends EventEmitter implements WebTransportServ
     this.sessionTimeout = 1000
   }
 
-  close (callback?: () => void) {
+  close (callback?: () => void): void {
     if (callback != null) {
       this.addListener('close', callback)
     }
@@ -47,7 +47,7 @@ class DefaultWebTransportServer extends EventEmitter implements WebTransportServ
       })
   }
 
-  listen () {
+  listen (): void {
     this.server.startServer()
     this.server.ready
       .then(() => {
@@ -67,7 +67,7 @@ class DefaultWebTransportServer extends EventEmitter implements WebTransportServ
     return this.server.address()
   }
 
-  async _processIncomingSessions () {
+  async _processIncomingSessions (): Promise<void> {
     // FIXME: incompatible webtransport implementations
     const paths = [
       // Chrome
@@ -79,7 +79,7 @@ class DefaultWebTransportServer extends EventEmitter implements WebTransportServ
 
     await Promise.all(
       paths.map(async path => {
-        const sessionStream = await this.server.sessionStream(path)
+        const sessionStream = this.server.sessionStream(path)
         const sessionReader = sessionStream.getReader()
 
         while (true) {

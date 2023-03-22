@@ -53,6 +53,7 @@ function parseMultiaddr (ma: Multiaddr): { url: string, certhashes: MultihashDig
           seenHost: true
         }
       case protocols('quic').code:
+      case protocols('quic-v1').code:
       case protocols('webtransport').code:
         if (!state.seenHost || !state.seenPort) {
           throw new Error("Invalid multiaddr, Didn't see host and port, but saw quic/webtransport")
@@ -116,7 +117,7 @@ class WebTransportTransport implements Transport {
     }
   }
 
-  get [Symbol.toStringTag] () {
+  get [Symbol.toStringTag] (): '@libp2p/webtransport' {
     return '@libp2p/webtransport'
   }
 
@@ -134,6 +135,10 @@ class WebTransportTransport implements Transport {
     options = options ?? {}
 
     const { url, certhashes, remotePeer } = parseMultiaddr(ma)
+
+    if (certhashes.length === 0) {
+      throw new Error('Expected multiaddr to contain certhashes')
+    }
 
     const wt = new WebTransport(`${url}/.well-known/libp2p-webtransport?type=noise`, {
       serverCertificateHashes: certhashes.map(certhash => ({
@@ -258,7 +263,7 @@ class WebTransportTransport implements Transport {
   /**
    * Takes a list of `Multiaddr`s and returns only valid webtransport addresses.
    */
-  filter (multiaddrs: Multiaddr[]) {
+  filter (multiaddrs: Multiaddr[]): Multiaddr[] {
     return multiaddrs.filter(ma => ma.protoNames().includes('webtransport'))
   }
 }

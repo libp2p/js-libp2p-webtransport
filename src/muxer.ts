@@ -98,7 +98,7 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
   const reader = bidiStream.readable.getReader()
   await writer.ready
 
-  function cleanupStreamFromActiveStreams () {
+  function cleanupStreamFromActiveStreams (): void {
     const index = activeStreams.findIndex(s => s === stream)
     if (index !== -1) {
       activeStreams.splice(index, 1)
@@ -186,7 +186,7 @@ async function webtransportBiDiStreamToStream (bidiStream: any, streamId: string
       stream.close()
     },
     stat: {
-      direction: direction,
+      direction,
       timeline: { open: Date.now() }
     },
     metadata: {},
