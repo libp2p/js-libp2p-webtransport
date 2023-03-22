@@ -40,7 +40,7 @@ Loading this module through a script tag will make it's exports available as `Li
 
 ## Description
 
-`libp2p-webtransport` is the WebTransport transport implementation compatible with libp2p.
+`@libp2p/webtransport` is the WebTransport transport implementation compatible with libp2p.
 
 ## Usage
 
