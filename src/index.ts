@@ -12,10 +12,25 @@ import type { StreamMuxerFactory, StreamMuxerInit, StreamMuxer } from '@libp2p/i
 import { Uint8ArrayList } from 'uint8arraylist'
 
 const log = logger('libp2p:webtransport')
+
 declare global {
-  interface Window {
-    WebTransport: any
+  interface WebTransportConfig {
+    serverCertificateHashes?: Array<{algorithm: string, value: Uint8Array}>
   }
+  /**
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
+   */
+  class GlobalThisWebTransport {
+    closed: Promise<any>
+    datagrams: Stream
+    incomingBidirectionalStreams: ReadableStream
+    incomingUnidirectionalStreams: ReadableStream
+    createBidirectionalStream (): Promise<any>
+    ready: Promise<any>
+    close (): any
+  }
+  // eslint-disable-next-line no-var
+  var WebTransport: new (url: string, config: WebTransportConfig) => GlobalThisWebTransport
 }
 
 // @ts-expect-error - Not easy to combine these types.
@@ -349,7 +364,7 @@ class WebTransport implements Transport {
     return await options.upgrader.upgradeOutbound(maConn, { skipEncryption: true, muxerFactory: this.webtransportMuxer(wt), skipProtection: true })
   }
 
-  async authenticateWebTransport (wt: typeof window.WebTransport, localPeer: PeerId, remotePeer: PeerId, certhashes: Array<MultihashDigest<number>>): Promise<boolean> {
+  async authenticateWebTransport (wt: InstanceType<typeof globalThis.WebTransport>, localPeer: PeerId, remotePeer: PeerId, certhashes: Array<MultihashDigest<number>>): Promise<boolean> {
     const stream = await wt.createBidirectionalStream()
     const writer = stream.writable.getWriter()
     const reader = stream.readable.getReader()
@@ -390,7 +405,7 @@ class WebTransport implements Transport {
     return true
   }
 
-  webtransportMuxer (wt: typeof window.WebTransport): StreamMuxerFactory {
+  webtransportMuxer (wt: InstanceType<typeof globalThis.WebTransport>): StreamMuxerFactory {
     let streamIDCounter = 0
     const config = this.config
     return {
