@@ -188,9 +188,9 @@ function parseMultiaddr (ma: Multiaddr): { url: string, certhashes: MultihashDig
   const { url, certhashes, remotePeer } = parts.reduce((state: { url: string, certhashes: MultihashDigest[], seenHost: boolean, seenPort: boolean, remotePeer?: PeerId }, [proto, value]) => {
     switch (proto) {
       case protocols('ip6').code:
-      // @ts-ignore - ignore fallthrough
+      // @ts-expect-error - ts error on switch fallthrough
       case protocols('dns6').code:
-        if (value?.includes(':')) {
+        if (value?.includes(':') === true) {
           /**
            * This resolves cases where `new globalThis.WebTransport` fails to construct because of an invalid URL being passed.
            *
@@ -201,6 +201,7 @@ function parseMultiaddr (ma: Multiaddr): { url: string, certhashes: MultihashDig
            */
           value = `[${value}]`
         }
+      // eslint-disable-next-line no-fallthrough
       case protocols('ip4').code:
       case protocols('dns4').code:
         if (state.seenHost || state.seenPort) {
