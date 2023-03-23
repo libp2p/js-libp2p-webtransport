@@ -1,6 +1,6 @@
 
 interface WebTransportConfig {
-  serverCertificateHashes?: Array<{algorithm: string, value: Uint8Array}>
+  serverCertificateHashes?: Array<{ algorithm: string, value: Uint8Array }>
 }
 /**
  * @see https://developer.mozilla.org/en-US/docs/Web/API/WebTransportBidirectionalStream
@@ -18,7 +18,7 @@ interface GlobalThisWebTransport extends EventTarget {
   incomingBidirectionalStreams: ReadableStream<WebTransportBidirectionalStream>
   incomingUnidirectionalStreams: ReadableStream
   ready: Promise<any>
-  close: (options?: {closeCode: number, reason: string}) => void
+  close: (options?: { closeCode: number, reason: string }) => void
   createBidirectionalStream: () => Promise<Duplex<Uint8ArrayList, Uint8ArrayList | Uint8Array>>
   createUnidirectionalStream: () => Promise<Stream>
 }
