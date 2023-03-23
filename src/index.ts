@@ -426,7 +426,7 @@ class WebTransport implements Transport {
           const reader = wt.incomingBidirectionalStreams.getReader()
           while (true) {
             const { done, value: wtStream } = await reader.read()
-            if (done === true) {
+            if (done) {
               break
             }
             if (activeStreams.length >= config.maxInboundStreams) {
