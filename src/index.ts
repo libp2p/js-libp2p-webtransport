@@ -20,14 +20,15 @@ declare global {
   /**
    * @see https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
    */
-  class GlobalThisWebTransport {
+  interface GlobalThisWebTransport extends EventTarget {
     closed: Promise<any>
     datagrams: Stream
     incomingBidirectionalStreams: ReadableStream
     incomingUnidirectionalStreams: ReadableStream
-    createBidirectionalStream (): Promise<any>
     ready: Promise<any>
-    close (): any
+    close: (options: {closeCode: number, reason: string}) => void
+    createBidirectionalStream: () => Promise<Stream>
+    createUnidirectionalStream: () => Promise<Stream>
   }
   // eslint-disable-next-line no-var
   var WebTransport: new (url: string, config: WebTransportConfig) => GlobalThisWebTransport
