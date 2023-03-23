@@ -299,7 +299,7 @@ class WebTransport implements Transport {
       throw new Error('Expected multiaddr to contain certhashes')
     }
 
-    const wt = new window.WebTransport(`${url}/.well-known/libp2p-webtransport?type=noise`, {
+    const wt = new globalThis.WebTransport(`${url}/.well-known/libp2p-webtransport?type=noise`, {
       serverCertificateHashes: certhashes.map(certhash => ({
         algorithm: 'sha-256',
         value: certhash.digest
