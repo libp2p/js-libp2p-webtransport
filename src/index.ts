@@ -350,11 +350,11 @@ class WebTransport implements Transport {
     const reader = stream.readable.getReader()
     await writer.ready
 
-    const duplex = {
+    const duplex: Duplex<Uint8Array, Uint8Array, Promise<void>> = {
       source: (async function * () {
         while (true) {
           const val = await reader.read()
-          yield val.value
+          yield val.value as Uint8Array
         }
       })(),
       sink: async function (source: Source<Uint8Array>) {
