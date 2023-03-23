@@ -13,27 +13,6 @@ import { Uint8ArrayList } from 'uint8arraylist'
 
 const log = logger('libp2p:webtransport')
 
-declare global {
-  interface WebTransportConfig {
-    serverCertificateHashes?: Array<{algorithm: string, value: Uint8Array}>
-  }
-  /**
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
-   */
-  interface GlobalThisWebTransport extends EventTarget {
-    closed: Promise<any>
-    datagrams: Stream
-    incomingBidirectionalStreams: ReadableStream
-    incomingUnidirectionalStreams: ReadableStream
-    ready: Promise<any>
-    close: (options: {closeCode: number, reason: string}) => void
-    createBidirectionalStream: () => Promise<Stream>
-    createUnidirectionalStream: () => Promise<Stream>
-  }
-  // eslint-disable-next-line no-var
-  var WebTransport: new (url: string, config: WebTransportConfig) => GlobalThisWebTransport
-}
-
 // @ts-expect-error - Not easy to combine these types.
 const multibaseDecoder = Object.values(bases).map(b => b.decoder).reduce((d, b) => d.or(b))
 
