@@ -148,7 +148,7 @@
     "lint": "aegir lint",
     "dep-check": "aegir dep-check",
     "build": "aegir build",
-    "test": "aegir test -t browser",
+    "test": "aegir test -t browser -t webworker",
     "test:chrome": "aegir test -t browser --cov",
     "test:chrome-webworker": "aegir test -t webworker",
     "release": "aegir release",
@@ -168,7 +168,6 @@
     "uint8arraylist": "^2.3.3"
   },
   "devDependencies": {
-    "@fails-components/webtransport": "^0.1.5",
     "aegir": "^38.1.7",
     "libp2p": "^0.43.2"
   },

@@ -11,6 +11,10 @@ import type { Duplex, Source } from 'it-stream-types'
 import type { StreamMuxerFactory, StreamMuxerInit, StreamMuxer } from '@libp2p/interface-stream-muxer'
 import { Uint8ArrayList } from 'uint8arraylist'
 
+declare global {
+  var WebTransport: any
+}
+
 const log = logger('libp2p:webtransport')
 
 // @ts-expect-error - Not easy to combine these types.
@@ -359,7 +363,7 @@ class WebTransportTransport implements Transport {
             yield val.value
           }
 
-          if (val.done) {
+          if (val.done === true) {
             break
           }
         }
@@ -413,9 +417,11 @@ class WebTransportTransport implements Transport {
           const reader = wt.incomingBidirectionalStreams.getReader()
           while (true) {
             const { done, value: wtStream } = await reader.read()
-            if (done) {
+
+            if (done === true) {
               break
             }
+
             if (activeStreams.length >= config.maxInboundStreams) {
               // We've reached our limit, close this stream.
               wtStream.writable.close().catch((err: Error) => {
