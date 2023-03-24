@@ -260,7 +260,7 @@ export interface WebTransportComponents {
   peerId: PeerId
 }
 
-class WebTransport implements Transport {
+class WebTransportTransport implements Transport {
   private readonly components: WebTransportComponents
   private readonly config: Required<WebTransportInit>
 
@@ -294,7 +294,7 @@ class WebTransport implements Transport {
       throw new Error('Expected multiaddr to contain certhashes')
     }
 
-    const wt = new globalThis.WebTransport(`${url}/.well-known/libp2p-webtransport?type=noise`, {
+    const wt = new WebTransport(`${url}/.well-known/libp2p-webtransport?type=noise`, {
       serverCertificateHashes: certhashes.map(certhash => ({
         algorithm: 'sha-256',
         value: certhash.digest
@@ -344,17 +344,24 @@ class WebTransport implements Transport {
     return await options.upgrader.upgradeOutbound(maConn, { skipEncryption: true, muxerFactory: this.webtransportMuxer(wt), skipProtection: true })
   }
 
-  async authenticateWebTransport (wt: InstanceType<typeof globalThis.WebTransport>, localPeer: PeerId, remotePeer: PeerId, certhashes: Array<MultihashDigest<number>>): Promise<boolean> {
+  async authenticateWebTransport (wt: InstanceType<typeof WebTransport>, localPeer: PeerId, remotePeer: PeerId, certhashes: Array<MultihashDigest<number>>): Promise<boolean> {
     const stream = await wt.createBidirectionalStream()
     const writer = stream.writable.getWriter()
     const reader = stream.readable.getReader()
     await writer.ready
 
-    const duplex: Duplex<Uint8Array, Uint8Array, Promise<void>> = {
+    const duplex = {
       source: (async function * () {
         while (true) {
           const val = await reader.read()
-          yield val.value as Uint8Array
+
+          if (val.value != null) {
+            yield val.value
+          }
+
+          if (val.done) {
+            break
+          }
         }
       })(),
       sink: async function (source: Source<Uint8Array>) {
@@ -385,7 +392,7 @@ class WebTransport implements Transport {
     return true
   }
 
-  webtransportMuxer (wt: InstanceType<typeof globalThis.WebTransport>): StreamMuxerFactory {
+  webtransportMuxer (wt: InstanceType<typeof WebTransport>): StreamMuxerFactory {
     let streamIDCounter = 0
     const config = this.config
     return {
@@ -477,5 +484,5 @@ class WebTransport implements Transport {
 }
 
 export function webTransport (init: WebTransportInit = {}): (components: WebTransportComponents) => Transport {
-  return (components: WebTransportComponents) => new WebTransport(components, init)
+  return (components: WebTransportComponents) => new WebTransportTransport(components, init)
 }
