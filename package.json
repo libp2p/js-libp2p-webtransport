@@ -158,7 +158,7 @@
     "@chainsafe/libp2p-noise": "^11.0.0",
     "@libp2p/interface-connection": "^3.0.2",
     "@libp2p/interface-peer-id": "^2.0.0",
-    "@libp2p/interface-stream-muxer": "^3.0.0",
+    "@libp2p/interface-stream-muxer": "^4.0.0",
     "@libp2p/interface-transport": "^2.0.0",
     "@libp2p/logger": "^2.0.2",
     "@libp2p/peer-id": "^2.0.0",
