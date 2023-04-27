@@ -168,7 +168,7 @@
     "uint8arraylist": "^2.3.3"
   },
   "devDependencies": {
-    "aegir": "^38.1.7",
+    "aegir": "^39.0.1",
     "libp2p": "^0.43.2",
     "p-defer": "^4.0.0"
   },
