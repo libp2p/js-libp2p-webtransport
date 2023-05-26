@@ -169,7 +169,7 @@
   },
   "devDependencies": {
     "aegir": "^39.0.3",
-    "libp2p": "^0.44.0",
+    "libp2p": "^0.45.4",
     "p-defer": "^4.0.0"
   },
   "browser": {
